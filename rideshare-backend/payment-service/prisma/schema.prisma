@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   // User receiving the notification
+  chatId    String?  // Telegram Chat ID (optional)
+  type      String   // Type: email, Telegram
+  content   String   // Notification message content
+  status    String   // pending, sent, failed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DriverAvailability {
+  id           String   @id @default(uuid())
+  userId       String   // User requesting a ride
+  status       String   // no_driver_available, driver_found
+  etaInMinutes Int?     // Estimated time of arrival if a driver is found
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
