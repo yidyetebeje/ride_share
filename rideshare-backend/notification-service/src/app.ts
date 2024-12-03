@@ -4,6 +4,7 @@ import morgan from "morgan";
 import cors from "cors";
 import errorHandler from "./middlewares/errorHandler";
 import notifyRoute from "./routes/availability.routes";
+import notification from "./routes/notify.routes";
 const app = express();
 
 app.use(bodyParser.json());
@@ -13,6 +14,7 @@ app.use(morgan("dev"));
 // Middleware to parse URL-encoded data
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/notify", notifyRoute);
+app.use("/api/notification", notification);
 app.get("/", (req, res) => {
   res.send("Notification Service  Is  Running"); // Response message for the root route
 });
