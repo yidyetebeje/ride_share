@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Update with your DB connection string
+}
+model Driver {
+  id                Int       @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  phoneNumber       String    @unique
+  profilePicture    String?   // Optional field for driver's profile picture
+  licenseNumber     String
+  licenseExpiryDate DateTime
+  insuranceVerified Boolean   @default(false)
+  vehicles          Vehicle[] // Change to an array for one-to-many
+  backgroundCheck   String    @default("Pending") // Pending, Passed, or Failed
+  status            DriverStatus @default(OFFLINE)
+  performance       Performance[] // Change to an array for one-to-many
+  earnings          Earning[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Vehicle {
+  id          Int      @id @default(autoincrement())
+  make        String   // Vehicle brand (e.g., Toyota)
+  model       String   // Vehicle model (e.g., Prius)
+  year        Int
+  plateNumber String   @unique
+  color       String
+  registered  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  driverId    Int      // Add driverId to establish the relationship
+  driver      Driver   @relation(fields: [driverId], references: [id])
+}
+
+model Performance {
+  id           Int      @id @default(autoincrement())
+  ratings      Float    @default(0.0)
+  totalTrips   Int      @default(0)
+  complaints   Int      @default(0)
+  compliments  Int      @default(0)
+  driverId     Int      // Remove unique constraint for one-to-many
+  driver       Driver   @relation(fields: [driverId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Earning {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  date        DateTime
+  tripId      Int
+  driverId    Int
+  driver      Driver   @relation(fields: [driverId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum DriverStatus {
+  ONLINE
+  OFFLINE
+}
