@@ -33,6 +33,7 @@ class RideRequestViewSet(viewsets.ModelViewSet):
             'fare_estimate': fare_estimate
         })
 
+    
 class DriverViewSet(viewsets.ModelViewSet):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
