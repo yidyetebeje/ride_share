@@ -14,4 +14,4 @@ class BookingSerializer(serializers.ModelSerializer):
                  'fare_amount', 'created_at', 'updated_at']
         
 
-        
+      

@@ -1,8 +1,15 @@
+
 # ride_matching/urls.py
 from django.urls import path
+
 from . import views
 
+router = DefaultRouter()
+router.register(r'ride-requests', views.RideRequestViewSet)
+router.register(r'drivers', views.DriverViewSet)
+
 urlpatterns = [
+
     # Ride Request Endpoints
     path('ride-requests/', views.RideRequestViewSet.as_view({
         'get': 'list',
@@ -28,3 +35,4 @@ urlpatterns = [
     path('drivers/<int:pk>/toggle-availability/', 
          views.DriverViewSet.as_view({'post': 'toggle_availability'})),
 ]
+

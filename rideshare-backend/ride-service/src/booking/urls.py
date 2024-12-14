@@ -29,3 +29,4 @@ urlpatterns = [
          views.BookingViewSet.as_view({'post': 'cancel_ride'}), 
          name='booking-cancel'),
 ]
+

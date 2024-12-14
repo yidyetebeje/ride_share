@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import random
 from .models import Driver, Location
 
+
 class RideMatchingService:
     def __init__(self):
         self.base_fare = Decimal('5.00')
@@ -42,6 +43,7 @@ class RideMatchingService:
         
         # Mock duration based on distance
         duration_minutes = int(distance_km * 3)  
+
         
         distance_fare = self.per_km_rate * Decimal(str(distance_km))
         time_fare = self.per_minute_rate * Decimal(str(duration_minutes))

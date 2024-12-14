@@ -28,6 +28,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             )
             
             # Create booking
+
             booking = Booking.objects.create(
                 ride_request=ride_request,
                 driver=driver,
@@ -106,3 +107,4 @@ class BookingViewSet(viewsets.ModelViewSet):
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
