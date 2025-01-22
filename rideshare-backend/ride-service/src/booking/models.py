@@ -10,9 +10,13 @@ class Booking(models.Model):
         ('CANCELLED', 'Cancelled'),
     ]
     
-    ride_request = models.OneToOneField(RideRequest, on_delete=models.CASCADE)
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='CREATED')
+    ride_request_id = models.IntegerField(default=0)
+    driver_id = models.IntegerField(default=0)
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='CREATED'
+    )
     estimated_pickup_time = models.DateTimeField()
     estimated_dropoff_time = models.DateTimeField()
     actual_pickup_time = models.DateTimeField(null=True, blank=True)
@@ -21,5 +25,5 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Booking {self.id} - {self.status}"
+    class Meta:
+        db_table = 'bookings'

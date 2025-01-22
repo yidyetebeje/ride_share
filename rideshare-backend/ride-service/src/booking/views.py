@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from .models import Booking
 from .serializers import BookingSerializer
@@ -18,93 +18,93 @@ class BookingViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        """Create a booking"""
+        """Create a new booking"""
         try:
-            ride_request = RideRequest.objects.get(
-                id=request.data.get('ride_request_id')
-            )
-            driver = Driver.objects.get(
-                id=request.data.get('driver_id')
-            )
-            
-            # Create booking
 
-            booking = Booking.objects.create(
-                ride_request=ride_request,
-                driver=driver,
-                estimated_pickup_time=datetime.now() + timedelta(minutes=10),
-                estimated_dropoff_time=datetime.now() + timedelta(minutes=25),
-                fare_amount=ride_request.estimated_fare or Decimal('0')
-            )
-            
-            # Update ride request and driver status
-            ride_request.status = 'MATCHED'
-            ride_request.save()
-            
-            driver.is_available = False
-            driver.save()
-            
-            return Response(BookingSerializer(booking).data)
-            
-        except (RideRequest.DoesNotExist, Driver.DoesNotExist) as e:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(f"Error creating booking: {str(e)}") 
             return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+
             )
+    @action(detail=True, methods=['post'])
+    def accept(self, request, pk=None):
+        """Accept a booking by a driver"""
+        try:
+            booking = self.get_object()
+            
+            if booking.status != 'CREATED':
+                return Response(
+                    {'error': 'Only CREATED bookings can be accepted'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            booking.status = 'ACCEPTED'
+            booking.save()
+            
+            # Optional: Notify user through RabbitMQ that driver accepted
+            # self.notify_user(booking)
+            
+            return Response(self.get_serializer(booking).data)
         except Exception as e:
             return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @action(detail=True, methods=['post'])
     def start_ride(self, request, pk=None):
+        """Start the ride"""
         try:
             booking = self.get_object()
+            if booking.status != 'ACCEPTED':
+                return Response(
+                    {'error': 'Ride must be accepted before starting'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
             booking.status = 'IN_PROGRESS'
             booking.actual_pickup_time = datetime.now()
             booking.save()
-            return Response(BookingSerializer(booking).data)
+            return Response(self.get_serializer(booking).data)
         except Exception as e:
             return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @action(detail=True, methods=['post'])
     def complete_ride(self, request, pk=None):
-        try:
-            booking = self.get_object()
-            booking.status = 'COMPLETED'
-            booking.actual_dropoff_time = datetime.now()
-            booking.save()
-            
-            # Make driver available again
-            booking.driver.is_available = True
-            booking.driver.save()
-            
-            return Response(BookingSerializer(booking).data)
-        except Exception as e:
+        """Complete the ride"""
+        booking = self.get_object()
+        if booking.status != 'IN_PROGRESS':
             return Response(
-                {'error': str(e)},
+                {'error': 'Ride must be in progress before completing'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        booking.status = 'COMPLETED'
+        booking.actual_dropoff_time = datetime.now()
+        booking.save()
+        return Response(self.get_serializer(booking).data)
 
     @action(detail=True, methods=['post'])
     def cancel_ride(self, request, pk=None):
-        try:
-            booking = self.get_object()
-            booking.status = 'CANCELLED'
-            booking.save()
-            
-            # Make driver available again
-            booking.driver.is_available = True
-            booking.driver.save()
-            
-            return Response(BookingSerializer(booking).data)
-        except Exception as e:
+        """Cancel the ride"""
+        booking = self.get_object()
+        if booking.status in ['COMPLETED', 'CANCELLED']:
             return Response(
-                {'error': str(e)},
+                {'error': 'Cannot cancel completed or already cancelled ride'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        booking.status = 'CANCELLED'
+        booking.save()
+        return Response(self.get_serializer(booking).data)
 
