@@ -12,6 +12,5 @@ class BookingSerializer(serializers.ModelSerializer):
                  'estimated_pickup_time', 'estimated_dropoff_time',
                  'actual_pickup_time', 'actual_dropoff_time',
                  'fare_amount', 'created_at', 'updated_at']
-        
-
+        read_only_fields = ('created_at', 'updated_at')
         

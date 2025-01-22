@@ -1,40 +1,31 @@
 
 services:
-  ride-service:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000 
-    volumes:
-      - ../src:/app
+  driver-service:
+    build: .
     ports:
-      - "8000:8000"
+      - "4343:4343"
     environment:
-      - POSTGRES_DB=ride_service
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST=ride-db
-      - POSTGRES_PORT=5432
-      - IN_DOCKER=true
+      - DATABASE_URL=postgresql://postgres:postgres@driver-db:5432/driver_service
+      - NODE_ENV=production
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
-      ride-db:
+      driver-db:
         condition: service_healthy
       rabbitmq:
         condition: service_started
     networks:
       - shared-network
 
-  ride-db:
+  driver-db:
     image: postgres:13
     ports:
-      - "5433:5432"  
+      - "5434:5432"  
     environment:
-      - POSTGRES_DB=ride_service
+      - POSTGRES_DB=driver_service
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ride_db_data:/var/lib/postgresql/data
+      - driver_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -46,8 +37,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5675:5672"  
+      - "15675:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -55,7 +46,7 @@ services:
       - shared-network
 
 volumes:
-  ride_db_data:
+  driver_db_data:
 
 networks:
   shared-network:

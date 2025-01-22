@@ -1,5 +1,6 @@
 // src/services/driver.service.ts
 import { PrismaClient, Driver, DriverStatus, Vehicle } from "@prisma/client";
+import rabbitmqService from './rabbitmq.service';
 
 const prisma = new PrismaClient();
 
@@ -55,6 +56,11 @@ class DriverService {
       where: { id },
       data: { status },
     });
+    try {
+      await rabbitmqService.publishDriverUpdate(id, status);
+    } catch (error) {
+      console.error('Failed to publish driver update:', error);
+    }
   }
 
   async trackPerformance(driverId: number) {

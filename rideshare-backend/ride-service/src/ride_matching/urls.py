@@ -18,13 +18,4 @@ urlpatterns = [
     path('ride-requests/<int:pk>/estimate-fare/', 
          views.RideRequestViewSet.as_view({'get': 'estimate_fare'})),
     
-    # Driver Endpoints
-    path('drivers/', views.DriverViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    })),
-    path('drivers/<int:pk>/update-location/', 
-         views.DriverViewSet.as_view({'post': 'update_location'})),
-    path('drivers/<int:pk>/toggle-availability/', 
-         views.DriverViewSet.as_view({'post': 'toggle_availability'})),
 ]
