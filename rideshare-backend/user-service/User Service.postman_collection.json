@@ -1,0 +1,50 @@
+{
+	"info": {
+		"_postman_id": "76f41612-7136-482b-8d1c-f897cb37d0e7",
+		"name": "User Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41355602"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": [
+				{
+					"name": "Create User",
+					"originalRequest": {
+						"method": "GET",
+						"header": []
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "user data",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": [
+				{
+					"name": "user data",
+					"originalRequest": {
+						"method": "GET",
+						"header": []
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		}
+	]
+}

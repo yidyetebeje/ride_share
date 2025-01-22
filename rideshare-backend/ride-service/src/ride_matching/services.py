@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class RideMatchingService:
     def __init__(self):
         self.driver_service_url = "http://driver-service:4343/api"
@@ -31,8 +32,9 @@ class RideMatchingService:
         base_fare = Decimal('5.00')
         per_km_rate = Decimal('2.00')
         
-        # Calculate distance
+
         distance = pickup_location.distance_to(dropoff_location)
+
         
         # Calculate fare
         distance_fare = Decimal(str(distance)) * per_km_rate

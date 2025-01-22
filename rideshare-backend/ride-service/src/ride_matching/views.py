@@ -45,6 +45,7 @@ class RideRequestViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+
     @action(detail=True, methods=['post'])
     def request_ride(self, request, pk=None):
         """Request a ride and find nearby drivers"""

@@ -20,6 +20,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     def create(self, request):
         """Create a new booking"""
         try:
+
             serializer = self.get_serializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -30,6 +31,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             return Response(
                 {'error': str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+
             )
     @action(detail=True, methods=['post'])
     def accept(self, request, pk=None):
@@ -101,7 +103,8 @@ class BookingViewSet(viewsets.ModelViewSet):
                 {'error': 'Cannot cancel completed or already cancelled ride'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         booking.status = 'CANCELLED'
         booking.save()
         return Response(self.get_serializer(booking).data)
+
