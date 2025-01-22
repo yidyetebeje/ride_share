@@ -7,7 +7,7 @@ class RabbitMQService {
     async connect() {
         try {
             // Use localhost when running locally, rabbitmq when in Docker
-            const host = process.env.NODE_ENV === 'production' ? 'rabbitmq' : 'localhost';
+            const host = process.env.NODE_ENV === 'production' ? 'rabbitmq' : 'rabbitmq';
             this.connection = await amqp.connect(`amqp://guest:guest@${host}:5672`);
             this.channel = await this.connection.createChannel();
             

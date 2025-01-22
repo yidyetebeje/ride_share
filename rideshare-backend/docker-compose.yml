@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  user-service:
+    build:
+      context: ./user-service
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - shared-network
+  analytics-and-reporting-service:
+    build:
+      context: ./analytics-and-reporting-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - shared-network
+  # Ensure this is a file-to-file mount
+  payment-service:
+    build:
+      context: ./payment-service
+    networks:
+      - shared-network
+   
+  ride-service:
+    build:
+      context: ./ride-service/src
+    
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_DB=ride_service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=ride-db
+      - POSTGRES_PORT=5432
+      - IN_DOCKER=true
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      ride-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - shared-network
+
+  ride-db:
+    image: postgres:13
+    ports:
+      - "5433:5432"  
+    environment:
+      - POSTGRES_DB=ride_service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ride_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rideshare
+    ports:
+      - "5432:5432"
+    networks:
+      - shared-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - shared-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - shared-network
+
+  driver-db:
+    image: postgres:13
+    ports:
+      - "5434:5432"  
+    environment:
+      - POSTGRES_DB=driver_service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - driver_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared-network
+  driver-service:
+    image: rideshare-backend_driver-service
+    build:
+      context: ./driver-service
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    ports:
+      - "4343:4343"
+    command: sh -c "sleep 5 && npm start"
+    depends_on:
+      driver-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - shared-network
+
+networks:
+  default:
+    driver: bridge
+  shared-network:
+    driver: bridge
+
+volumes:
+  driver_db_data:
+  ride_db_data:
