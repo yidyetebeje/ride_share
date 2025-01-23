@@ -17,8 +17,8 @@ urlpatterns = [
     }), name='booking-detail'),
 
     # Custom actions
-    path('<int:pk>/accept/', 
-         views.BookingViewSet.as_view({'post': 'accept'}), 
+    path('<int:pk>/accept_ride/', 
+         views.BookingViewSet.as_view({'post': 'accept_ride'}), 
          name='booking-accept'),
     
     path('<int:pk>/start/', 

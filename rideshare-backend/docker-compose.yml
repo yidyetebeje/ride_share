@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   user-service:
@@ -28,11 +27,11 @@ services:
     networks:
       - shared-network
   # Ensure this is a file-to-file mount
-  payment-service:
-    build:
-      context: ./payment-service
-    networks:
-      - shared-network
+  # payment-service:
+  #   build:
+  #     context: ./payment-service
+  #   networks:
+  #     - shared-network
    
   ride-service:
     build:

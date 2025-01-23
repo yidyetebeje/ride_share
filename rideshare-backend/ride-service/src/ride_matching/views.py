@@ -1,8 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import RideRequest, Driver, Location
-from .serializers import RideRequestSerializer, DriverSerializer, LocationSerializer
+from .models import RideRequest, Location
+from .serializers import RideRequestSerializer
 from .services import RideMatchingService
 
 class RideRequestViewSet(viewsets.ModelViewSet):

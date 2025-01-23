@@ -1,17 +1,11 @@
 from rest_framework import serializers
-from .models import Location, Driver, RideRequest
+from .models import Location, RideRequest
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ['id', 'latitude', 'longitude']
 
-class DriverSerializer(serializers.ModelSerializer):
-    current_location = LocationSerializer(read_only=True)
-    
-    class Meta:
-        model = Driver
-        fields = ['id', 'driver_id', 'current_location', 'is_available', 'rating']
 
 class RideRequestSerializer(serializers.ModelSerializer):
     pickup_location = LocationSerializer()

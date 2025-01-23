@@ -52,14 +52,23 @@ class DriverService {
   }
 
   async setDriverStatus(id: number, status: DriverStatus): Promise<Driver> {
-    return await prisma.driver.update({
-      where: { id },
-      data: { status },
-    });
     try {
-      await rabbitmqService.publishDriverUpdate(id, status);
+      // First update the database
+      const updatedDriver = await prisma.driver.update({
+        where: { id },
+        data: { status },
+      });
+
+      // Then publish the update
+      await rabbitmqService.publishDriverUpdate(id, 'driver.status.updated', {
+        status,
+        driverId: id
+      });
+
+      return updatedDriver;
     } catch (error) {
-      console.error('Failed to publish driver update:', error);
+      console.error('Failed to update driver status:', error);
+      throw error;
     }
   }
 
@@ -70,6 +79,26 @@ class DriverService {
   async trackEarnings(driverId: number) {
     return await prisma.earning.findMany({ where: { driverId } });
   }
+  async updateDriverStatus(driverId: number, status: DriverStatus) {
+    try {
+        // Update driver status in database
+        const updatedDriver = await prisma.driver.update({
+            where: { id: driverId },
+            data: { status }
+        });
+
+        // Publish driver status update
+        await rabbitmqService.publishDriverUpdate(driverId, 'driver.status.updated', {
+            status,
+            driverId // Remove location since it's not in your model
+        });
+
+        return updatedDriver;
+    } catch (error) {
+        console.error('Error updating driver status:', error);
+        throw error;
+    }
+}
 }
 
 export default new DriverService();
