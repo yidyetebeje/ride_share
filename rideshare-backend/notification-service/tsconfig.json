@@ -16,6 +16,6 @@
     "src/app.ts",
     "src/server.js",
     "src/server.js"
-  ],
+, "src/notification_consumer.ts"  ],
   "exclude": ["node_modules"]
 }

@@ -1,9 +1,11 @@
 import { createServer } from "http";
 import app from "./app";
-const PORT = 5500;
+import { connectAndConsume } from "./notification_consumer";
+const PORT = process.env.PORT || 5500;
 
 const server = createServer(app);
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server is running on port http://localhost:${PORT}`);
+  connectAndConsume().catch(console.warn);
+  console.log(`🚀  http://localhost:${PORT}`);
 });
