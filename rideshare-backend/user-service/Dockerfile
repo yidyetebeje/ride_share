@@ -14,6 +14,6 @@ ENV SMTP_USER=yohannesgetachew.e@gmail.com
 ENV SMTP_PASS="bjlf npye ljfj zehy"
 ENV TELEGRAM_BOT_TOKEN=8042429948:AAGbdGpsvVJQPjdtDbb5dLqeVA6ULym5QKI
 
-EXPOSE 3002
+EXPOSE 3001
 
 CMD ["npm", "start"]

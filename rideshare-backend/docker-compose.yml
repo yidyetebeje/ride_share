@@ -1,13 +1,40 @@
 
 services:
+  nginx:
+    build:
+        context: .
+    ports:
+      - "80:80"
+    depends_on:
+      - user-service
+      - analytics-and-reporting-service
+      - ride-service
+      - driver-service
+      - notification-service
+    networks:
+      - shared-network
+  notification-service:
+    build:
+      context: ./notification-service
+    ports:
+      - "5500:5500"
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - shared-network
   user-service:
     build:
       context: ./user-service
     ports:
-      - "3001:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=production
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - MONGO_URI=mongodb://user-db:example@mongodb:27017/user-service
     depends_on:
       rabbitmq:
         condition: service_started
@@ -26,12 +53,7 @@ services:
         condition: service_started
     networks:
       - shared-network
-  # Ensure this is a file-to-file mount
-  # payment-service:
-  #   build:
-  #     context: ./payment-service
-  #   networks:
-  #     - shared-network
+  
    
   ride-service:
     build:
@@ -97,7 +119,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_USERNAME: user-db
       MONGO_INITDB_ROOT_PASSWORD: example
     networks:
       - shared-network

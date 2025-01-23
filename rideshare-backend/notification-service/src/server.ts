@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import app from "./app";
-const PORT = 4343;
+const PORT = 5500;
 
 const server = createServer(app);
 

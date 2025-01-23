@@ -33,7 +33,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connect to MongoDB using the MONGO_URI from the environment variables
-mongoose.connect('mongodb://mongodb:27017/user-service')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => console.error('MongoDB connection error:', err));
 
