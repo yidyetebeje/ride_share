@@ -6,6 +6,7 @@ import {
   DriverStats,
   Ride,
 } from '../types/analytics.types';
+import { sendNotification } from 'src/utils/notification';
 
 @Injectable()
 export class AnalyticsService {
@@ -18,6 +19,31 @@ export class AnalyticsService {
     const userStats = this.aggregateUserStats();
     const driverStats = this.aggregateDriverStats();
 
+    // Create a better formatted message with updated emojis
+    const message = `
+    📊 **Analytics Report**
+
+    🚘 **Total Ride Volume**: ${rideVolume} rides
+    💰 **Total Revenue**: $${revenue.toFixed(2)}
+
+    👥 **User Statistics**:
+     - Total Users:   ${userStats.length}
+  
+
+    🏎️ **Driver Statistics**:
+    - Total Drivers:  ${driverStats.length}
+  
+
+    🔄 **Summary**:
+    - Ride Volume: ${rideVolume} rides
+    - Revenue: $${revenue.toFixed(2)}
+
+    Keep up the great work! 🚀
+  `;
+
+    // Send the formatted notification message
+    sendNotification('923913833', message);
+
     return { rideVolume, revenue, userStats, driverStats };
   }
 
@@ -28,6 +54,19 @@ export class AnalyticsService {
 
     const totalRides = ridesForUser.length;
     const totalSpent = ridesForUser.reduce((sum, ride) => sum + ride.fare, 0);
+
+    // Create a better formatted message with updated emojis
+    const message = `
+    🧑‍🤝‍🧑 **User Statistics Report** for User ID: ${userId}
+    
+    🚗 **Total Rides Taken**: ${totalRides} rides
+    💵 **Total Spent**: $${totalSpent.toFixed(2)}
+
+    Keep riding and enjoy the journey! 🚀
+  `;
+
+    // Send the formatted notification message
+    sendNotification('923913833', message);
 
     return { userId, totalRides, totalSpent };
   }
@@ -46,6 +85,19 @@ export class AnalyticsService {
       (sum, ride) => sum + ride.fare,
       0,
     );
+
+    // Format the message
+    const message = `
+  🏎️ **Driver Stats for Driver ID: ${driverId}**
+
+  🚗 **Total Rides**: ${totalRides} rides
+  💵 **Total Earnings**: $${totalEarnings.toFixed(2)}
+
+  Keep up the great work! 🚀
+  `;
+
+    // Send the notification message
+    sendNotification('923913833', message);
 
     return { driverId, totalRides, totalEarnings };
   }
