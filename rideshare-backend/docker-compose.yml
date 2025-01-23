@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   nginx:
@@ -54,14 +53,7 @@ services:
         condition: service_started
     networks:
       - shared-network
-  # Ensure this is a file-to-file mount
-  payment-service:
-    build:
-      context: ./payment-service
-    ports:
-      - "4000:4000"
-    networks:
-      - shared-network
+  
    
   ride-service:
     build:
