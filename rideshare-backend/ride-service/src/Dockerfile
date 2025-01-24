@@ -19,4 +19,5 @@ COPY . /app/
 EXPOSE 8000
 
 # Run the Django development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Default command (can be overridden by docker-compose)
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]

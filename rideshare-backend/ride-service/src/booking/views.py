@@ -6,7 +6,7 @@ from decimal import Decimal
 from .models import Booking
 from .serializers import BookingSerializer
 from ride_matching.models import RideRequest
-from notification_helper import send_telegram, send_email 
+from notification_helper import send_notification
 from .services import BookingService
 import logging
 
@@ -28,8 +28,12 @@ class BookingViewSet(viewsets.ModelViewSet):
                 booking = serializer.save()
                 message = f"Ride booked! Driver will arrive in 10 minutes"
                 try:
-                    send_telegram(content=message)
-                    send_email(content=message)
+                    send_notification(
+                        content=message,
+                        chat_id=self.booking_service.default_chat_id,
+                        email=self.booking_service.default_email
+                    )
+                
                     logger.info("Notifications sent successfully")
                 except Exception as e:
                     logger.error(f"Failed to send notifications: {str(e)}")
@@ -62,8 +66,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             # Send notifications
             message = "Your ride has been accepted! Driver is on the way. Estimated pickup time: 5mins"
             try:
-                send_telegram(content=message)
-                send_email(content=message)
+                send_notification(
+                        content=message,
+                        chat_id=self.booking_service.default_chat_id,
+                        email=self.booking_service.default_email
+                    )
                 logger.info("Notifications sent successfully")
             except Exception as e:
                 logger.error(f"Failed to send notifications: {str(e)}")
@@ -104,8 +111,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             # Send notifications
             message = "Your ride has started"
             try:
-                send_telegram(content=message)
-                send_email(content=message)
+                send_notification(
+                        content=message,
+                        chat_id=self.booking_service.default_chat_id,
+                        email=self.booking_service.default_email
+                    )
             except Exception as e:
                 logger.error(f"Failed to send notifications: {str(e)}")
 
@@ -134,8 +144,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             # Send notifications
             message = f"Ride completed. Final fare: ${booking.fare_amount}"
             try:
-                send_telegram(content=message)
-                send_email(content=message)
+                 send_notification(
+                        content=message,
+                        chat_id=self.booking_service.default_chat_id,
+                        email=self.booking_service.default_email
+                    )
             except Exception as e:
                 logger.error(f"Failed to send notifications: {str(e)}")
 
@@ -163,8 +176,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             # Send notifications
             message = "Your ride has been cancelled"
             try:
-                send_telegram(content=message)
-                send_email(content=message)
+                 send_notification(
+                        content=message,
+                        chat_id=self.booking_service.default_chat_id,
+                        email=self.booking_service.default_email
+                    )
             except Exception as e:
                 logger.error(f"Failed to send notifications: {str(e)}")
 

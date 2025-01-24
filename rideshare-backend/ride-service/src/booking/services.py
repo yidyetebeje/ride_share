@@ -4,7 +4,7 @@ from decimal import Decimal
 from .models import Booking
 from ride_matching.models import RideRequest
 from ride_matching.services import RideMatchingService
-from notification_helper import send_email, send_notification, send_telegram
+from notification_helper import  send_notification
 import requests
 import logging
 

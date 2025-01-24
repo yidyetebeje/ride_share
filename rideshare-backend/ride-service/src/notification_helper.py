@@ -1,89 +1,57 @@
 from typing import Optional
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import requests
+import smtplib # We will remove these direct email and telegram dependencies here
+from email.mime.multipart import MIMEMultipart # ...
+from email.mime.text import MIMEText # ...
+import requests # ...
 from datetime import datetime
 import logging
+import pika  # Import pika for RabbitMQ
+import json # For serializing data to send to RabbitMQ
 
 logger = logging.getLogger(__name__)
 
-
-# Hardcoded SMTP and Telegram credentials
+# Hardcoded SMTP and Telegram credentials (These should ideally be environment variables)
 SMTP_USER = "yohannesgetachew.e@gmail.com"
 SMTP_PASS = "bjlf npye ljfj zehy"
 TELEGRAM_BOT_TOKEN = "8042429948:AAGbdGpsvVJQPjdtDbb5dLqeVA6ULym5QKI"
 
-# Function to send email
-def send_email(to:str = "ruthwossen75@gmail.com", content:str = "Ride Update"):
+# RabbitMQ Connection Parameters (Adjust as needed for your setup)
+RABBITMQ_HOST = 'rabbitmq'  # If RabbitMQ is in Docker, use the Docker service name if they are in the same network
+RABBITMQ_QUEUE_NAME = 'notification_queue' # Name of the queue for notifications
+
+def publish_message_rabbitmq(queue_name: str, message: dict):
+    """Publishes a message to RabbitMQ."""
     try:
-        msg = MIMEMultipart()
-        msg['From'] = f"Ride Sharing App <{SMTP_USER}>"
-        msg['To'] = to
-        msg['Subject'] = "🚗 Ride Sharing Notification"
+        connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
+        channel = connection.channel()
 
-        body = f"""
-        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; border-radius: 5px;">
-          <h2 style="color: #333;">Hello!</h2>
-          <p style="color: #555;">{content}</p>
-          <p style="color: #555;">Thank you for using our service!</p>
-          <footer style="margin-top: 20px; font-size: 12px; color: #888;">
-            &copy; {datetime.now().year} Ride Sharing App. All rights reserved.
-          </footer>
-        </div>
-        """
-        msg.attach(MIMEText(body, 'html'))
+        channel.queue_declare(queue=queue_name, durable=True) # Ensure queue exists and is durable (messages persist)
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASS)
-        server.sendmail(SMTP_USER, to, msg.as_string())
-        server.quit()
-
-        print(f"Email sent to {to}")
+        channel.basic_publish(exchange='',
+                              routing_key=queue_name,
+                              body=json.dumps(message), # Serialize message to JSON
+                              properties=pika.BasicProperties(
+                                  delivery_mode=2, # make message persistent
+                              ))
+        print(f" [x] Sent message to queue '{queue_name}': {message}")
+        connection.close()
     except Exception as e:
-        print("Error sending email:", e)
-        raise
-
-# Function to send Telegram message
-def send_telegram(chat_id:str = "923913833", content:str = "Ride Update"):
-    try:
-        message = f"""
-        *🚗 Ride Sharing Notification*
-
-        _Hello!_
-
-        {content}
-
-        Thank you for choosing our service! 🚀
-
-        If you have any questions, feel free to reach out to us.
-        """
-
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            'chat_id': chat_id,
-            'text': message,
-            'parse_mode': "Markdown"
-        }
-        logger.info(f"Sending Telegram message to {chat_id}")
-        logger.info(f"Payload: {payload}")
-
-        response = requests.post(url, json=payload)
-        response.raise_for_status()
-
-        print(f"Message sent to chat ID {chat_id}")
-    except Exception as e:
-        print("Error sending Telegram message:", e)
+        print(f"Error publishing to RabbitMQ: {e}")
         raise
 
 def send_notification(content: str, chat_id: str = "923913833", email: str = "yohannesgetachewerieso@gmail.com"):
-    """Send both Telegram and Email notifications"""
+    """Sends notification data to RabbitMQ for processing by the notification service."""
     try:
-        send_telegram(chat_id=chat_id, content=content)
-        send_email(to=email, content=content)
-        logger.info("All notifications sent successfully")
+        notification_data = {
+            "type": "notification", # You can add a type if you have different kinds of messages
+            "email": email,
+            "telegram_chat_id": chat_id,
+            "content": content
+        }
+        publish_message_rabbitmq(RABBITMQ_QUEUE_NAME, notification_data)
+        logger.info("Notification message published to RabbitMQ")
         return True
     except Exception as e:
         logger.error(f"Error in send_notification: {str(e)}")
         raise
+
