@@ -8,28 +8,11 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
 
 ## Architecture
 
-### System Architecture Diagram
+## System Architecture
+Below is the **System Architecture Diagram**:
 
-```plaintext
-[Frontend Clients]
-        ↓
-[API Gateway or Service Router]
-        ↓
-+-------------------+ +------------------+
-| Driver Service    | | User Service     |
-| (Node.js, MVC)    | | (Node.js, MVC)   |
-+-------------------+ +------------------+
-         ↓                  ↓
-+-------------------+ +------------------+
-| Ride Service      | | Payment Service  |
-| (Django, MTV)     | | (Node.js, MVC)   |
-+-------------------+ +------------------+
-         ↓                  ↓
-+-------------------+ +------------------+
-| Notification Svc  | | Analytics Svc    |
-| (Node.js, MVC)    | | (Nest.js, MVC)   |
-+-------------------+ +------------------+
-```
+![System Architecture](./images/system-architecture.png)
+
 
 ### Key Features of Microservice Architecture
 
@@ -64,6 +47,17 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
   - Driver registration and management.
   - Real-time status updates (e.g., availability).
 
+**Endpoints:**
+
+| Method | Endpoint           | Description                         |
+|--------|--------------------|-------------------------------------|
+| `POST` | `/register`        | Register a new driver               |
+| `GET`  | `/drivers`         | Fetch a list of all drivers         |
+| `GET`  | `/drivers/:id`     | Get details of a specific driver    |
+| `PUT`  | `/drivers/:id`     | Update driver details               |
+| `DELETE` | `/drivers/:id`   | Delete a driver                     |
+
+
 ### 2. User Service (Node.js, MVC)
 
 - **Purpose**: Handles user authentication and profile management.
@@ -72,6 +66,14 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
   - User registration and login.
   - Managing user profiles and preferences.
 
+**Endpoints:**
+
+| Method | Endpoint           | Description                |
+|--------|--------------------|----------------------------|
+| `POST` | `/register`        | Register a new user        |
+| `POST` | `/login`           | Login an existing user     |
+| `GET`  | `/profile`         | Get user profile details   |
+
 ### 3. Ride Service (Django, MTV)
 
 - **Purpose**: Manages ride requests, matching, and ride tracking.
@@ -79,6 +81,24 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
 - **Responsibilities**:
   - Matching drivers to users based on proximity and availability.
   - Ride status management (e.g., booked, ongoing, completed).
+
+**Endpoints:**
+
+| Method | Endpoint                   | Description                      |
+|--------|----------------------------|----------------------------------|
+| `POST` | `/booking`                 | Book a new ride                  |
+| `POST` | `/booking/:id/accept-ride` | Accept a ride                    |
+| `POST` | `/booking/:id/cancel-ride` | Cancel a ride                    |
+| `GET`  | `/booking/:id`             | Get ride details by ride ID      |
+| `PUT`  | `/booking/:id/start`       | Start a ride                     |
+| `PUT`  | `/booking/:id/end`         | End a ride and calculate fare    |
+| `DELETE` | `/booking/:id`           | Delete a ride request            |
+| `GET`  | `/ride-requests`           | Get all ride requests            |
+| `GET`  | `/ride-requests/:id`       | Get ride request by id           |
+| `PUT`  | `/ride-requests/:id/update`| Update ride request by id        |
+| `DELETE` | `/ride-requests/:id`     | Delete a ride request            |
+
+
 
 ### 4. Payment Service (Node.js, MVC)
 
@@ -96,6 +116,13 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
   - Multi-channel notifications (Email, Telegram).
   - Customizable notification templates.
 
+**Endpoints:**
+
+| Method | Endpoint           | Description                         |
+|--------|--------------------|-------------------------------------|
+| `POST` | `/send-email`      | Send an email notification          |
+| `POST` | `/send-telegram`   | Send a Telegram notification        |
+
 ### 6. Analytics and Reporting Service (Nest.js, MVC)
 
 - **Purpose**: Generates analytics and reports for business insights.
@@ -106,17 +133,10 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
 
 ---
 
-## Communication
+## Communication Flow
+Below is the **Communication Flow Diagram**:
 
-- **Inter-Service Communication**:
-
-  - Services communicate via REST APIs.
-  - Asynchronous messaging (e.g., RabbitMQ or Kafka) is planned for event-driven operations.
-
-- **Data Sharing**:
-  - Each service maintains its own database for a decentralized approach.
-  - APIs are used to share required data between services.
-
+![Communication Flow](./images/communication-flow.png)
 ---
 
 ## Technology Stack
@@ -169,7 +189,7 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
 
    - Using Docker Compose:
      ```bash
-     docker-compose up
+     docker-compose up --build
      ```
    - Or manually start each service:
      ```bash
