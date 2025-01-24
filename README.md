@@ -11,7 +11,7 @@ We primarily employ the **Model-View-Controller (MVC)** architectural pattern fo
 ## System Architecture
 Below is the **System Architecture Diagram**:
 
-![System Architecture](./images/system-architecture.png)
+![System Architecture](./images/system-architecture2.png)
 
 
 ### Key Features of Microservice Architecture
